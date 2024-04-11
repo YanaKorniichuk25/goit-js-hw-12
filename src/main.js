@@ -11,13 +11,14 @@ const baseUrl = 'https://pixabay.com/api/';
 
 const searchForm = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
-const loaderWrapper = document.querySelector('.loader-wrapper ');
+const loaderWrapper = document.querySelector('.loader-wrapper');
 const btnLoadMore = document.querySelector('.load-more-btn');
 
 let currentPage = 1;
 let limitPageContent = 15;
 let currentSearchQuery = null;
 let totalContent = null;
+let totalPages = null;
 
 searchForm.addEventListener('submit', onSubmitForm);
 btnLoadMore.addEventListener('click', onLoadMoreButtonClick);
@@ -74,6 +75,7 @@ async function fetchData(
 
     currentSearchQuery = inputSearchValue;
     totalContent = data.totalHits;
+    totalPages = Math.ceil(totalContent / limitPageContent);
 
     renderGalleryImg(galleryEl, formData);
 
