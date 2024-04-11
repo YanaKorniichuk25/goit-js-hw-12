@@ -7,7 +7,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
 });
 
 export function renderGalleryImg(parentEl, data) {
-  parentEl.innerHTML = generateGalleryMarkup(data);
+  parentEl.insertAdjacentHTML('beforeend', generateGalleryMarkup(data));
   lightbox.refresh();
 }
 
