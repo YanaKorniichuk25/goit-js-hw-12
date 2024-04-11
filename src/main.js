@@ -1,9 +1,7 @@
 import { getDataFromAPI } from './js/pixabay-api';
 import { renderGalleryImg } from './js/render-functions';
-
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-
 import iconError from './img/icon-error.svg';
 
 const apiKey = '43227230-2cc9b082dfeccb819f6787c2c';
@@ -75,11 +73,17 @@ async function fetchData(
 
     currentSearchQuery = inputSearchValue;
     totalContent = data.totalHits;
+
     totalPages = Math.ceil(totalContent / limitPageContent);
 
     renderGalleryImg(galleryEl, formData);
 
-    btnLoadMore.classList.remove('is-hidden');
+    if (currentPage >= totalPages) {
+      btnLoadMore.classList.add('is-hidden');
+    } else {
+      btnLoadMore.classList.remove('is-hidden');
+    }
+
     smoothScroll();
   } catch (error) {
     displayErrorMessage('Error fetching data. Please try again later', 'Error');
@@ -90,20 +94,28 @@ async function fetchData(
 }
 
 async function onLoadMoreButtonClick() {
-  const totalPages = Math.ceil(totalContent / limitPageContent);
+  currentPage++;
 
-  if (currentPage >= totalPages) {
+  loaderWrapper.classList.remove('is-hidden');
+
+  await fetchData(
+    baseUrl,
+    apiKey,
+    currentSearchQuery,
+    currentPage,
+    limitPageContent
+  );
+
+  smoothScroll();
+
+  if (currentPage === totalPages) {
     btnLoadMore.classList.add('is-hidden');
     displayErrorMessage(
-      'We are sorry, but you have reached the end of search results',
-      'Error'
+      `We are sorry, but you have reached the end of search results. We have only ${totalContent} images!`,
+      '',
+      '#eb216e'
     );
-    return;
   }
-
-  currentPage++;
-  loaderWrapper.classList.remove('is-hidden');
-  fetchData(baseUrl, apiKey, currentSearchQuery, currentPage, limitPageContent);
 }
 
 function smoothScroll() {
@@ -126,12 +138,12 @@ const iziToastConfig = {
   messageLineHeight: '24',
 };
 
-function displayErrorMessage(message, title) {
+function displayErrorMessage(message, title, color = '#EF4040') {
   iziToast.error({
     ...iziToastConfig,
     title: title || '',
     message: `${message}`,
-    backgroundColor: '#EF4040',
+    backgroundColor: color,
     iconUrl: iconError,
   });
 }
